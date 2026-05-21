@@ -14,8 +14,7 @@ export default function Home() {
   const [showApp, setShowApp] = useState(false);
 
   // ── 상태 변수 (State)
-  const [channels, setChannels]               = useState([]);
-  const [selectedChannel, setSelectedChannel] = useState(null);
+  const [selectedChannel, setSelectedChannel] = useState({ id: 'alchan', name: '알찬반 학부모공개수업' });
   const [questions, setQuestions]             = useState([]);
   const [notices, setNotices]                 = useState([]);
   const [isAdmin, setIsAdmin]                 = useState(false);
@@ -31,10 +30,6 @@ export default function Home() {
   const [answers, setAnswers]                 = useState([]);
   const [answerInput, setAnswerInput]         = useState('');
 
-  // 채널 추가 모달
-  const [showChannelModal, setShowChannelModal] = useState(false);
-  const [channelNameInput, setChannelNameInput] = useState('');
-
   // 공지 작성 모달
   const [showNoticeModal, setShowNoticeModal]       = useState(false);
   const [noticeTitleInput, setNoticeTitleInput]     = useState('');
@@ -44,16 +39,7 @@ export default function Home() {
   const questionUnsub = useRef(null);
   const answerUnsub   = useRef(null);
 
-  // =====================================================
-  // 채널 실시간 구독 (앱 시작 시 1회)
-  // =====================================================
-  useEffect(() => {
-    const q = query(collection(db, 'channels'), orderBy('createdAt', 'asc'));
-    const unsub = onSnapshot(q, snapshot => {
-      setChannels(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-    return () => unsub();
-  }, []);
+
 
   // =====================================================
   // 공지 실시간 구독 (앱 시작 시 1회)
@@ -108,24 +94,7 @@ export default function Home() {
     return () => { if (answerUnsub.current) answerUnsub.current(); };
   }, [detailQuestion]);
 
-  // =====================================================
-  // 채널 기능
-  // =====================================================
-  async function handleAddChannel() {
-    if (!channelNameInput.trim()) { alert('채널 이름을 입력해 주세요.'); return; }
-    await addDoc(collection(db, 'channels'), {
-      name:      channelNameInput.trim(),
-      createdBy: CURRENT_USER.id,
-      createdAt: serverTimestamp(),
-    });
-    setChannelNameInput(''); setShowChannelModal(false);
-  }
 
-  async function handleDeleteChannel(channelId) {
-    if (!confirm('채널을 삭제할까요?')) return;
-    await deleteDoc(doc(db, 'channels', channelId));
-    if (selectedChannel?.id === channelId) setSelectedChannel(null);
-  }
 
   // =====================================================
   // 질문 기능
@@ -248,30 +217,14 @@ export default function Home() {
           <div className="channel-section">
             <div className="section-label">
               <span>채널</span>
-              {isAdmin && (
-                <button className="btn-icon" onClick={() => { setChannelNameInput(''); setShowChannelModal(true); }}>＋</button>
-              )}
             </div>
             <ul className="channel-list">
-              {channels.length === 0 && <li className="list-empty">채널이 없습니다</li>}
-              {channels.map(ch => (
-                <li
-                  key={ch.id}
-                  className={`channel-item${selectedChannel?.id === ch.id ? ' active' : ''}`}
-                  onClick={() => setSelectedChannel({ id: ch.id, name: ch.name })}
-                >
-                  <span className="channel-item-name">
-                    <span className="ch-hash">#</span>
-                    {ch.name}
-                  </span>
-                  {isAdmin && (
-                    <button
-                      className="channel-del-btn visible"
-                      onClick={e => { e.stopPropagation(); handleDeleteChannel(ch.id); }}
-                    >✕</button>
-                  )}
-                </li>
-              ))}
+              <li className="channel-item active">
+                <span className="channel-item-name">
+                  <span className="ch-hash">#</span>
+                  알찬반 학부모공개수업
+                </span>
+              </li>
             </ul>
           </div>
 
@@ -437,27 +390,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ===== 모달 ③ 채널 추가 ===== */}
-      {showChannelModal && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setShowChannelModal(false); }}>
-          <div className="modal modal-sm">
-            <div className="modal-header">
-              <h3 className="modal-title">📂 채널 추가</h3>
-              <button className="btn-close" onClick={() => setShowChannelModal(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label className="form-label">채널 이름</label>
-                <input className="form-input" placeholder="예: 1학년-1반" value={channelNameInput} onChange={e => setChannelNameInput(e.target.value)} maxLength={30} onKeyDown={e => e.key === 'Enter' && handleAddChannel()} />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowChannelModal(false)}>취소</button>
-              <button className="btn-primary" onClick={handleAddChannel}>추가하기</button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* ===== 모달 ④ 공지 작성 ===== */}
       {showNoticeModal && (
