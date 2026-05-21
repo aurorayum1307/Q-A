@@ -75,11 +75,13 @@ export default function Home() {
 
     const q = query(
       collection(db, 'questions'),
-      where('channelId', '==', selectedChannel.id),
-      orderBy('createdAt', 'desc')
+      where('channelId', '==', selectedChannel.id)
     );
     questionUnsub.current = onSnapshot(q, snapshot => {
-      setQuestions(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      // 클라이언트에서 최신순(desc) 정렬 (복합 색인 에러 방지)
+      data.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+      setQuestions(data);
     });
 
     return () => { if (questionUnsub.current) questionUnsub.current(); };
@@ -94,11 +96,13 @@ export default function Home() {
 
     const q = query(
       collection(db, 'answers'),
-      where('questionId', '==', detailQuestion.id),
-      orderBy('createdAt', 'asc')
+      where('questionId', '==', detailQuestion.id)
     );
     answerUnsub.current = onSnapshot(q, snapshot => {
-      setAnswers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      // 클라이언트에서 오래된순(asc) 정렬
+      data.sort((a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0));
+      setAnswers(data);
     });
 
     return () => { if (answerUnsub.current) answerUnsub.current(); };
@@ -217,7 +221,6 @@ export default function Home() {
           style={{ objectFit: 'cover' }}
           priority
         />
-        <div className="landing-overlay" />
         <div className="landing-card">
           <p className="landing-subtitle">수업관련 Q&amp;A</p>
           <h1 className="landing-title">함께 질문해요! 🙋</h1>

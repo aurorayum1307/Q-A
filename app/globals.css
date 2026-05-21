@@ -494,3 +494,46 @@ body {
   font-size: 11px; color: var(--text-muted);
 }
 .answer-form-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+/* =====================================================
+   모바일 반응형 (스마트폰 크기)
+   ===================================================== */
+@media (max-width: 768px) {
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto; /* 모바일에서는 전체 페이지 스크롤 */
+  }
+
+  /* 사이드바 크기 조정 */
+  .sidebar {
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    box-shadow: none;
+    padding-bottom: 16px;
+  }
+  
+  .sidebar-right {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    min-height: 30vh;
+  }
+
+  /* 가운데 질문 영역 */
+  .main-content {
+    overflow-y: visible;
+    min-height: 50vh;
+  }
+
+  /* 모바일 랜딩 카드 최적화 */
+  .landing-card {
+    padding: 24px 30px;
+    width: 90%;
+  }
+  .landing-title {
+    font-size: 24px;
+  }
+}
