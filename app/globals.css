@@ -82,10 +82,10 @@ body {
   position: relative; z-index: 2;
   display: flex; flex-direction: column; align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0, 0, 0, 0.65); /* 카드를 살짝 어둡고 불투명하게 해서 텍스트가 잘 보이도록 변경 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   padding: 32px 44px;
   text-align: center;
