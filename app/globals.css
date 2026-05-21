@@ -459,16 +459,15 @@ body {
 /* =====================================================
    질문 상세 모달 내부
    ===================================================== */
-.detail-meta {
-  font-size: 12px; color: var(--text-muted); margin-bottom: 12px;
-  display: flex; gap: 8px; align-items: center;
-}
-.detail-content {
-  font-size: 14px; color: var(--text-secondary); line-height: 1.8;
-  white-space: pre-wrap; word-break: break-word;
-  padding: 16px; background: var(--bg-input);
-  border-radius: var(--radius); margin-bottom: 24px;
-}
+.detail-meta { display: flex; gap: 8px; color: var(--text-muted); font-size: 13px; margin-bottom: 4px; }
+.detail-content { font-size: 15px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; margin-bottom: 24px; padding: 16px; background: var(--bg-input); border-radius: var(--radius); }
+
+/* 이미지 첨부 스타일 */
+.image-icon { margin-left: 6px; font-size: 14px; }
+.file-selected-text { font-size: 12px; color: var(--success); margin-top: 6px; }
+.detail-image-wrapper { margin-bottom: 16px; text-align: center; }
+.detail-image { max-width: 100%; max-height: 400px; border-radius: var(--radius); object-fit: contain; border: 1px solid var(--border); background: var(--bg-card); }
+
 .answers-section { border-top: 1px solid var(--border); padding-top: 20px; }
 .answers-heading { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 .answer-count {

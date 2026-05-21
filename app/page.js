@@ -6,7 +6,8 @@ import {
   collection, addDoc, deleteDoc, doc, updateDoc,
   onSnapshot, query, where, orderBy, serverTimestamp
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { CURRENT_USER, formatDate } from '@/lib/utils';
 
 export default function Home() {
@@ -23,6 +24,8 @@ export default function Home() {
   const [showAskModal, setShowAskModal]       = useState(false);
   const [askTitle, setAskTitle]               = useState('');
   const [askContent, setAskContent]           = useState('');
+  const [askImageFile, setAskImageFile]       = useState(null);
+  const [isUploading, setIsUploading]         = useState(false);
 
   // 질문 상세 모달
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -102,16 +105,38 @@ export default function Home() {
   async function handleSubmitAsk() {
     if (!askTitle.trim())   { alert('제목을 입력해 주세요.'); return; }
     if (!askContent.trim()) { alert('내용을 입력해 주세요.'); return; }
-    await addDoc(collection(db, 'questions'), {
-      channelId:    selectedChannel.id,
-      title:        askTitle.trim(),
-      content:      askContent.trim(),
-      authorId:     CURRENT_USER.id,
-      authorName:   CURRENT_USER.name,
-      bestAnswerId: null,
-      createdAt:    serverTimestamp(),
-    });
-    setAskTitle(''); setAskContent(''); setShowAskModal(false);
+    
+    setIsUploading(true);
+    try {
+      let imageUrl = null;
+      if (askImageFile) {
+        // 파일 이름을 고유하게 만들어서 덮어쓰기 방지
+        const fileRef = ref(storage, `questions/${Date.now()}_${askImageFile.name}`);
+        const snapshot = await uploadBytes(fileRef, askImageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+      }
+
+      await addDoc(collection(db, 'questions'), {
+        channelId:    selectedChannel.id,
+        title:        askTitle.trim(),
+        content:      askContent.trim(),
+        imageUrl:     imageUrl, // 업로드된 이미지 주소 저장
+        authorId:     CURRENT_USER.id,
+        authorName:   CURRENT_USER.name,
+        bestAnswerId: null,
+        createdAt:    serverTimestamp(),
+      });
+      
+      setAskTitle(''); 
+      setAskContent(''); 
+      setAskImageFile(null);
+      setShowAskModal(false);
+    } catch (error) {
+      console.error('업로드 에러:', error);
+      alert('질문을 등록하는 중 에러가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   function openDetail(question) {
@@ -256,7 +281,7 @@ export default function Home() {
             <button
               className="btn-primary"
               disabled={!selectedChannel}
-              onClick={() => { setAskTitle(''); setAskContent(''); setShowAskModal(true); }}
+              onClick={() => { setAskTitle(''); setAskContent(''); setAskImageFile(null); setShowAskModal(true); }}
             >
               ＋ 질문하기
             </button>
@@ -277,7 +302,10 @@ export default function Home() {
             )}
             {questions.map(q => (
               <div key={q.id} className="question-card" onClick={() => openDetail(q)}>
-                <div className="card-title">{q.title}</div>
+                <div className="card-title">
+                  {q.title}
+                  {q.imageUrl && <span className="image-icon" title="사진 포함">📷</span>}
+                </div>
                 <div className="card-meta">
                   <span className="card-author">👤 {q.authorName}</span>
                   <span className="meta-dot">·</span>
@@ -326,13 +354,25 @@ export default function Home() {
                 <input className="form-input" placeholder="어떤 내용이 궁금하신가요?" value={askTitle} onChange={e => setAskTitle(e.target.value)} maxLength={100} />
               </div>
               <div className="form-group">
+                <label className="form-label">사진 첨부 (선택)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="form-input" 
+                  onChange={e => setAskImageFile(e.target.files[0])}
+                />
+                {askImageFile && <p className="file-selected-text">선택된 파일: {askImageFile.name}</p>}
+              </div>
+              <div className="form-group">
                 <label className="form-label">질문 내용</label>
                 <textarea className="form-textarea" placeholder="궁금한 내용을 자세히 적어주세요" rows={5} value={askContent} onChange={e => setAskContent(e.target.value)} />
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowAskModal(false)}>취소</button>
-              <button className="btn-primary" onClick={handleSubmitAsk}>질문 올리기</button>
+              <button className="btn-secondary" onClick={() => setShowAskModal(false)} disabled={isUploading}>취소</button>
+              <button className="btn-primary" onClick={handleSubmitAsk} disabled={isUploading}>
+                {isUploading ? '업로드 중...' : '질문 올리기'}
+              </button>
             </div>
           </div>
         </div>
@@ -352,7 +392,14 @@ export default function Home() {
                 <span>·</span>
                 <span>{formatDate(detailQuestion.createdAt)}</span>
               </div>
-              <div className="detail-content">{detailQuestion.content}</div>
+              <div className="detail-content">
+                {detailQuestion.imageUrl && (
+                  <div className="detail-image-wrapper">
+                    <img src={detailQuestion.imageUrl} alt="첨부된 이미지" className="detail-image" />
+                  </div>
+                )}
+                {detailQuestion.content}
+              </div>
 
               <div className="answers-section">
                 <h4 className="answers-heading">
