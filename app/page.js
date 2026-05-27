@@ -147,6 +147,10 @@ export default function Home() {
   // 보물상자 클릭 처리
   // =====================================================
   function handleChestClick(question) {
+    if (!isAdmin) {
+      alert('비밀 보물상자는 평가 시간에 선생님과 함께 열어볼 예정입니다! 조금만 기다려주세요 😊');
+      return;
+    }
     if (openingChestId) return; // 이미 열리는 중이면 중복 클릭 방지
     setOpeningChestId(question.id);
     
