@@ -27,6 +27,9 @@ export default function Home() {
   const [askImageFile, setAskImageFile]       = useState(null);
   const [isUploading, setIsUploading]         = useState(false);
 
+  // 보물상자 애니메이션 상태
+  const [openingChestId, setOpeningChestId]   = useState(null);
+
   // 질문 상세 모달
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailQuestion, setDetailQuestion]   = useState(null);
@@ -120,10 +123,11 @@ export default function Home() {
         channelId:    selectedChannel.id,
         title:        askTitle.trim(),
         content:      askContent.trim(),
-        imageUrl:     imageUrl, // 업로드된 이미지 주소 저장
+        imageUrl:     imageUrl,
         authorId:     CURRENT_USER.id,
         authorName:   CURRENT_USER.name,
         bestAnswerId: null,
+        isAnswered:   false, // 답변 상태 추가
         createdAt:    serverTimestamp(),
       });
       
@@ -137,6 +141,20 @@ export default function Home() {
     } finally {
       setIsUploading(false);
     }
+  }
+
+  // =====================================================
+  // 보물상자 클릭 처리
+  // =====================================================
+  function handleChestClick(question) {
+    if (openingChestId) return; // 이미 열리는 중이면 중복 클릭 방지
+    setOpeningChestId(question.id);
+    
+    // 애니메이션 후 모달 열기 (1.2초)
+    setTimeout(() => {
+      openDetail(question);
+      setOpeningChestId(null);
+    }, 1200);
   }
 
   function openDetail(question) {
@@ -163,6 +181,10 @@ export default function Home() {
       authorName: CURRENT_USER.name,
       createdAt:  serverTimestamp(),
     });
+    
+    // 답변이 등록되면 해당 질문을 '답변 완료' 상태로 바꿈
+    await updateDoc(doc(db, 'questions', detailQuestion.id), { isAnswered: true });
+    
     setAnswerInput('');
   }
 
@@ -287,7 +309,7 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="question-board">
+          <div className="question-board chest-grid">
             {!selectedChannel && (
               <div className="empty-state">
                 <div className="empty-icon">💬</div>
@@ -297,22 +319,30 @@ export default function Home() {
             {selectedChannel && questions.length === 0 && (
               <div className="empty-state">
                 <div className="empty-icon">🤔</div>
-                <p>아직 질문이 없어요. 첫 번째로 질문해 보세요!</p>
+                <p>아직 상자가 없어요. 첫 번째 상자를 만들어보세요!</p>
               </div>
             )}
-            {questions.map(q => (
-              <div key={q.id} className="question-card" onClick={() => openDetail(q)}>
-                <div className="card-title">
-                  {q.title}
-                  {q.imageUrl && <span className="image-icon" title="사진 포함">📷</span>}
+            
+            {questions.map(q => {
+              const isOpening = openingChestId === q.id;
+              const isAnswered = q.isAnswered || q.bestAnswerId;
+              
+              return (
+                <div 
+                  key={q.id} 
+                  className={`chest-item ${isAnswered ? 'answered' : 'unanswered'} ${isOpening ? 'opening' : ''}`}
+                  onClick={() => handleChestClick(q)}
+                >
+                  <div className="chest-wrapper">
+                    <div className="chest-lid"></div>
+                    <div className="chest-base">
+                      <span className="chest-symbol">{isAnswered ? '❗' : '❓'}</span>
+                    </div>
+                    {isOpening && <div className="chest-sparkles">✨🌟✨</div>}
+                  </div>
                 </div>
-                <div className="card-meta">
-                  <span className="card-author">👤 {q.authorName}</span>
-                  <span className="meta-dot">·</span>
-                  <span>{formatDate(q.createdAt)}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </main>
 
