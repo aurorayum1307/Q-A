@@ -146,6 +146,21 @@ export default function Home() {
   // =====================================================
   // 보물상자 클릭 처리
   // =====================================================
+  function handleSecretAdmin() {
+    if (isAdmin) {
+      // 이미 관리자면 끌 것인지 확인
+      if (confirm('관리자 모드를 종료하시겠습니까?')) setIsAdmin(false);
+      return;
+    }
+    const pwd = prompt('관리자 비밀번호를 입력하세요:');
+    if (pwd === '1234') {
+      setIsAdmin(true);
+      alert('관리자 모드가 켜졌습니다!');
+    } else if (pwd !== null) {
+      alert('비밀번호가 틀렸습니다.');
+    }
+  }
+
   function handleChestClick(question) {
     if (!isAdmin) {
       alert('비밀 보물상자는 평가 시간에 선생님과 함께 열어볼 예정입니다! 조금만 기다려주세요 😊');
@@ -259,7 +274,7 @@ export default function Home() {
         {/* ① 왼쪽 사이드바 — 채널 목록 */}
         <aside className="sidebar">
           <div className="sidebar-header">
-            <div className="app-brand">
+            <div className="app-brand" onClick={handleSecretAdmin} style={{ cursor: 'pointer' }}>
               <span className="brand-icon">🏫</span>
               <span className="brand-name">부안해오름유치원 Q&amp;A</span>
             </div>
@@ -287,13 +302,6 @@ export default function Home() {
                 <div className="user-id">{CURRENT_USER.id}</div>
               </div>
             </div>
-            <label className="admin-toggle">
-              <span className="toggle-text">관리자 모드</span>
-              <div className="toggle-switch">
-                <input type="checkbox" checked={isAdmin} onChange={e => setIsAdmin(e.target.checked)} />
-                <span className="toggle-slider" />
-              </div>
-            </label>
           </div>
         </aside>
 
