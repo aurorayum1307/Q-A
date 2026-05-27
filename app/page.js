@@ -257,7 +257,7 @@ export default function Home() {
           <div className="sidebar-header">
             <div className="app-brand">
               <span className="brand-icon">🏫</span>
-              <span className="brand-name">학교 Q&amp;A</span>
+              <span className="brand-name">부안해오름유치원 Q&amp;A</span>
             </div>
           </div>
 
