@@ -574,10 +574,7 @@ body {
   bottom: 0;
   width: 100%;
   height: 60%;
-  background: linear-gradient(to bottom, #d4a373, #b5835a);
-  border: 3px solid #7f5539;
   border-radius: 4px 4px 12px 12px;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), inset 0 -5px 10px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -589,8 +586,6 @@ body {
   top: 10%;
   width: 100%;
   height: 45%;
-  background: linear-gradient(to bottom, #faedcd, #d4a373);
-  border: 3px solid #7f5539;
   border-radius: 40px 40px 4px 4px;
   box-shadow: inset 0 5px 10px rgba(255,255,255,0.4);
   transform-origin: bottom center;
@@ -598,15 +593,37 @@ body {
   z-index: 2;
 }
 
+/* 물음표 상자 (화려한 금빛) */
+.unanswered .chest-base {
+  background: linear-gradient(to bottom, #ffc107, #ff9800);
+  border: 3px solid #b26a00;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), inset 0 -5px 10px rgba(0,0,0,0.2);
+  animation: glowUnanswered 1.5s infinite alternate;
+}
+.unanswered .chest-lid {
+  background: linear-gradient(to bottom, #ffeb3b, #ffc107);
+  border: 3px solid #b26a00;
+}
+.unanswered .chest-symbol { color: #ffffff; text-shadow: 0 2px 6px rgba(178,106,0,0.8); }
+
+/* 느낌표 상자 (신비로운 에메랄드) */
+.answered .chest-base {
+  background: linear-gradient(to bottom, #4caf50, #2e7d32);
+  border: 3px solid #1b5e20;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), inset 0 -5px 10px rgba(0,0,0,0.2);
+  animation: glowAnswered 1.5s infinite alternate;
+}
+.answered .chest-lid {
+  background: linear-gradient(to bottom, #81c784, #4caf50);
+  border: 3px solid #1b5e20;
+}
+.answered .chest-symbol { color: #ffffff; text-shadow: 0 2px 6px rgba(27,94,32,0.8); }
+
 .chest-symbol {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
   animation: float 2s infinite ease-in-out;
 }
-
-.unanswered .chest-symbol { color: #fdf0d5; }
-.answered .chest-symbol { color: #52b788; }
 
 .chest-item.opening {
   animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
@@ -627,6 +644,16 @@ body {
   z-index: 3;
   animation: popSparkle 0.8s ease-out forwards;
   animation-delay: 0.5s;
+}
+
+@keyframes glowUnanswered {
+  from { filter: drop-shadow(0 0 5px rgba(255,193,7,0.4)); }
+  to { filter: drop-shadow(0 0 20px rgba(255,193,7,0.9)); }
+}
+
+@keyframes glowAnswered {
+  from { filter: drop-shadow(0 0 5px rgba(76,175,80,0.4)); }
+  to { filter: drop-shadow(0 0 20px rgba(76,175,80,0.9)); }
 }
 
 @keyframes shake {
