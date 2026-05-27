@@ -620,9 +620,14 @@ body {
 .answered .chest-symbol { color: #ffffff; text-shadow: 0 2px 6px rgba(27,94,32,0.8); }
 
 .chest-symbol {
-  font-size: 32px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 75px; /* 기호 크기 키움 (상자를 꽉 채우도록) */
   font-weight: 900;
-  animation: float 2s infinite ease-in-out;
+  z-index: 4; /* 상자 뚜껑 위로 올라오도록 설정 */
+  animation: floatSymbol 2s infinite ease-in-out;
+  line-height: 1;
 }
 
 .chest-item.opening {
@@ -644,6 +649,11 @@ body {
   z-index: 3;
   animation: popSparkle 0.8s ease-out forwards;
   animation-delay: 0.5s;
+}
+
+@keyframes floatSymbol {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -56%); }
 }
 
 @keyframes glowUnanswered {

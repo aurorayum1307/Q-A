@@ -335,9 +335,8 @@ export default function Home() {
                 >
                   <div className="chest-wrapper">
                     <div className="chest-lid"></div>
-                    <div className="chest-base">
-                      <span className="chest-symbol">{isAnswered ? '❗' : '❓'}</span>
-                    </div>
+                    <div className="chest-base"></div>
+                    <span className="chest-symbol">{isAnswered ? '❗' : '❓'}</span>
                     {isOpening && <div className="chest-sparkles">✨🌟✨</div>}
                   </div>
                 </div>
